@@ -28,24 +28,18 @@
 						三种状态：未完成（没有样式）、已完成（.completed ）、编辑中( .editing )
 					-->
 					<!--修改:1、v-for迭代; 2、:class={key为class样式名,value为获取的数据true或false}-->
-					<li v-for="(item,index) in items" :key="item.id":class="{completed: item.completed}">
+					<li v-for="(item,index) in filterItems" :key="item.id":class="{completed: item.completed, editing:item === currentItem}">
 						<div class="view">
 							<!-- 修改：1、v-model 绑定状态值是否选中 -->
 							<input class="toggle" type="checkbox" v-model="item.completed">
 							<!-- 修改：1、{{ content }} 显示内容 -->
-							<label>{{item.content}}</label>
+							<label @dblclick="toEdit(item)">{{item.content}}</label>
 							<!--修改: 1、:value 绑定id删除 删除id后 item中数据仍然存在 但是在获取时是通过id获取的 因此不会展示到前端-->
 							<button class="destroy":value="item.id" @click="removeItem(index)"></button>
 						</div>
-						<input class="edit" value="Create a TodoMVC template">
-					</li>
-					<li>
-						<div class="view">
-							<input class="toggle" type="checkbox">
-							<label>Buy a unicorn</label>
-							<button class="destroy"></button>
-						</div>
-						<input class="edit" value="Rule the web">
+						<!-- 注意 value前面有:表示动态绑定！！！ 不加的话就是单纯的赋值 -->
+						<input class="edit" :value="item.content" @keyup.esc="cancelEdit" @keyup.enter="finishEdit(item,index,$event)" 
+						@blur="finishEdit(item,index,$event)">
 					</li>
 				</ul>
 			</section>
@@ -56,13 +50,13 @@
 				<!-- Remove this if you don't implement routing -->
 				<ul class="filters">
 					<li>
-						<a class="selected" href="#/">All</a>
+						<a :class="{selected: filterStatus === 'all'}" href="#/" >All</a>
 					</li>
 					<li>
-						<a href="#/active">Active</a>
+						<a :class="{selected: filterStatus === 'active'}" href="#/active">Active</a>
 					</li>
 					<li>
-						<a href="#/completed">Completed</a>
+						<a :class="{selected: filterStatus === 'completed'}" href="#/completed">Completed</a>
 					</li>
 				</ul>
 				<!-- Hidden if no completed items are left ↓ -->
